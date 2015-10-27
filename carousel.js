@@ -150,23 +150,9 @@
       if (self._currentIndex !== -1) {
         self._setItem(self._currentIndex, false);
       }
-      // FIXME: Simplify the below logic!
       self._setItem(i, true);
-      if (len === 1) {
-        self._setNav(0, true);
-        self._setNav(1, true);
-      } else {
-        if (i === 0) {
-          self._setNav(0, true);
-          self._setNav(1, false);
-        } else if (i === self._items.length - 1) {
-          self._setNav(0, false);
-          self._setNav(1, true);
-        } else {
-          self._setNav(0, false);
-          self._setNav(1, false);
-        }
-      }
+      self._setNav(0, len === 1 || i === 0);
+      self._setNav(1, len === 1 || i === self._items.length - 1);
       self._currentIndex = i;
     }
 
