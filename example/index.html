@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>carousel</title>
+  <style>
+    .carousel-nav__item {
+      cursor: pointer;
+      display: block;
+      opacity: 1;
+      height: 1em;
+    }
+    .carousel-nav__item--previous {
+      background: red;
+    }
+    .carousel-nav__item--next {
+      background: green;
+    }
+    .carousel-nav__item--disabled {
+      cursor: default;
+      background: gray;
+    }
+
+    .carousel-menu__item {
+      cursor: pointer;
+    }
+    .carousel-menu__item:hover {
+      color: white;
+      background: blue;
+    }
+    .carousel-menu__item--current,
+    .carousel-menu__item--current:hover {
+      cursor: default;
+      color: white;
+      background: black;
+    }
+
+    .carousel-text__item, .carousel-images__item {
+      display: none;
+    }
+    .carousel-text__item--current, .carousel-images__item--current {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="carousel">
+    <div class="carousel__disabled">
+      <div class="carousel__item">
+        <div class="carousel__item-image">
+          <p>foo</p>
+        </div>
+        <h2 class="carousel__item-title">Foo</h2>
+        <div class="carousel__item-text">
+          <p>Lorem ipsum.</p>
+        </div>
+      </div>
+      <div class="carousel__item">
+        <div class="carousel__item-image">
+          <p>bar</p>
+        </div>
+        <h2 class="carousel__item-title">Bar</h2>
+        <div class="carousel__item-text">
+          <p>Consectuer ipdiscing.</p>
+        </div>
+      </div>
+      <div class="carousel__item">
+        <div class="carousel__item-image">
+          <p>baz</p>
+        </div>
+        <h2 class="carousel__item-title">Baz</h2>
+        <div class="carousel__item-text">
+          <p>Elit.</p>
+        </div>
+      </div>
+    </div>
+    <div class="carousel__active">
+      <div class="carousel-images"></div>
+      <div class="carousel-nav"></div>
+      <div class="carousel-menu"></div>
+      <div class="carousel-text"></div>
+    </div>
+  </div>
+  <script src="../carousel.js"></script>
+  <script>
+    carousel(document.querySelector('.carousel'), {
+
+      initialIndex: 0,
+      minWidth: 480,
+
+      disabledSelector: '.carousel__disabled',
+      activeSelector: '.carousel__active',
+
+      itemSelector: '.carousel__item',
+      itemMenuSelector: '.carousel__item-title',
+
+      navSelector: '.carousel-nav',
+      navItemClassName: 'carousel-nav__item',
+      navDisabledItemClassName: 'carousel-nav__item--disabled',
+      navPreviousClassName: 'carousel-nav__item--previous',
+      navNextClassName: 'carousel-nav__item--next',
+
+      menuSelector: '.carousel-menu',
+      menuItemClassName: 'carousel-menu__item',
+      menuActiveItemClassName: 'carousel-menu__item--current',
+
+      content: [
+        {
+          itemSelector: '.carousel__item-text',
+          containerSelector: '.carousel-text',
+          itemClassName: 'carousel-text__item',
+          activeItemClassName: 'carousel-text__item--current'
+        },
+        {
+          itemSelector: '.carousel__item-image',
+          containerSelector: '.carousel-images',
+          itemClassName: 'carousel-images__item',
+          activeItemClassName: 'carousel-images__item--current'
+        }
+      ]
+
+    });
+  </script>
+</body>
+</html>

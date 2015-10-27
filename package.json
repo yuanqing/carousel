@@ -1,0 +1,12 @@
+{
+  "name": "carousel",
+  "version": "0.0.0",
+  "description": "",
+  "author": "Lim Yuan Qing",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/yuanqing/carousel.git"
+  },
+  "main": "carousel.js",
+}
