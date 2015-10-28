@@ -34,99 +34,93 @@
     return elem;
   }
 
-  function Carousel($elem, opts) {
+  function Carousel(elem, opts) {
 
     // Allow `Carousel` to be called without `new`.
     var self = this;
     if (!(self instanceof Carousel)) {
-      return new Carousel($elem, opts);
+      return new Carousel(elem, opts);
     }
 
     // Exit if no items.
-    var $items = $(opts.itemSelector, $elem);
-    if (!$items || $items.length === 0) {
+    var items = $(opts.itemSelector, elem);
+    if (!items || items.length === 0) {
       return;
     }
 
     self._opts = opts;
-
-    // Containers.
-    var $activeContainer = $(opts.activeSelector, $elem);
-    var $disabledContainer = $(opts.disabledSelector, $elem);
-    var $navContainer = $(opts.navSelector, $elem);
-    var $menuContainer = $(opts.menuSelector, $elem);
-    var $contentContainers = map(opts.content, function(contentSpec) {
-      return $(contentSpec.containerSelector, $elem);
-    });
-
-    // Carousel nav.
-    self.$navItems = [
-      createElement(opts.navItemClassName + ' ' + opts.navPreviousClassName),
-      createElement(opts.navItemClassName + ' ' + opts.navNextClassName)
-    ];
-
-    // Carousel items.
-    self._items = map($items, function($item) {
-      return {
-        $menuItem: createElement(opts.menuItemClassName, $(opts.itemMenuSelector, $item).innerHTML),
-        $contentItems: map(opts.content, function(contentSpec) {
-          return createElement(contentSpec.itemClassName, $(contentSpec.itemSelector, $item).innerHTML);
-        })
-      }
-    });
-
-    var resizeHandler = function() {
-      var isActive = window.innerWidth >= opts.minWidth;
-      raf(function() {
-        $disabledContainer.style.display = isActive ? 'none' : 'block';
-        $activeContainer.style.display = isActive ? 'block' : 'none';
-      });
-    };
-
     self._currentIndex = -1;
 
+    var activeContainer = $(opts.activeSelector, elem);
+    var disabledContainer = $(opts.disabledSelector, elem);
+    function resizeHandler() {
+      var isActive = window.innerWidth >= opts.minWidth;
+      raf(function() {
+        disabledContainer.style.display = isActive ? 'none' : 'block';
+        activeContainer.style.display = isActive ? 'block' : 'none';
+      });
+    }
     raf(function() {
+      window.addEventListener('resize', resizeHandler);
+      resizeHandler();
+    });
 
-      each(self.$navItems, function($navItem, i) {
-        $navContainer.appendChild($navItem);
-        $navItem.addEventListener('click', function() {
+    // `_navElems`
+    var navContainer = $(opts.navSelector, elem);
+    raf(function() {
+      self._navElems = [
+        createElement(opts.navItemClassName + ' ' + opts.navPreviousClassName),
+        createElement(opts.navItemClassName + ' ' + opts.navNextClassName)
+      ];
+      each(self._navElems, function(navElem, i) {
+        navContainer.appendChild(navElem);
+        navElem.addEventListener('click', function() {
           self[i === 0 ? 'previous' : 'next']();
         });
       });
+    });
 
-      each(self._items, function(carouselItem, i) {
-        $menuContainer.appendChild(carouselItem.$menuItem);
-        each(carouselItem.$contentItems, function($contentItem, i) {
-          $contentContainers[i].appendChild($contentItem);
+    // `_items`
+    var menuContainer = $(opts.menuSelector, elem);
+    var contentContainers = map(opts.content, function(contentSpec) {
+      return $(contentSpec.containerSelector, elem);
+    });
+    raf(function() {
+      self._items = map(items, function(item) {
+        return {
+          menuElem: createElement(opts.menuItemClassName, $(opts.itemMenuSelector, item).innerHTML),
+          contentElems: map(opts.content, function(contentSpec) {
+            return createElement(contentSpec.itemClassName, $(contentSpec.itemSelector, item).innerHTML);
+          })
+        }
+      });
+      each(self._items, function(item, i) {
+        each(item.contentElems, function(contentElem, i) {
+          contentContainers[i].appendChild(contentElem);
         });
-        carouselItem.$menuItem.addEventListener('click', function() {
+        menuContainer.appendChild(item.menuElem);
+        item.menuElem.addEventListener('click', function() {
           self.goto(i);
         });
       });
-
       self.goto(opts.initialIndex);
-
-      window.addEventListener('resize', resizeHandler);
-      resizeHandler();
-
     });
 
   }
 
   Carousel.prototype = {
 
-    _setItem: function(index, isVisible) {
+    _showItem: function(index, isVisible) {
       var self = this;
       var classListMethod = isVisible ? 'add' : 'remove';
-      self._items[index].$menuItem.classList[classListMethod](self._opts.menuActiveItemClassName);
-      each(self._items[index].$contentItems, function($contentItem, i) {
-        $contentItem.classList[classListMethod](self._opts.content[i].activeItemClassName);
+      self._items[index].menuElem.classList[classListMethod](self._opts.menuActiveItemClassName);
+      each(self._items[index].contentElems, function(contentElem, i) {
+        contentElem.classList[classListMethod](self._opts.content[i].activeItemClassName);
       });
     },
 
-    _setNav: function(index, isDisabled) {
-      var classListMethod = isDisabled ? 'add' : 'remove';
-      this.$navItems[index].classList[classListMethod](this._opts.navDisabledItemClassName);
+    _disableNav: function(index, isDisabled) {
+      this._navElems[index].classList[isDisabled ? 'add' : 'remove'](this._opts.navDisabledItemClassName);
     },
 
     getCurrentIndex: function() {
@@ -141,19 +135,19 @@
       this.goto(this._currentIndex + 1);
     },
 
-    goto: function(i) {
+    goto: function(index) {
       var self = this;
       var len = self._items.length;
-      if (i === self._currentIndex || i < 0 || i >= len) {
+      if (index === self._currentIndex || index < 0 || index >= len) {
         return;
       }
       if (self._currentIndex !== -1) {
-        self._setItem(self._currentIndex, false);
+        self._showItem(self._currentIndex, false);
       }
-      self._setItem(i, true);
-      self._setNav(0, len === 1 || i === 0);
-      self._setNav(1, len === 1 || i === self._items.length - 1);
-      self._currentIndex = i;
+      self._showItem(index, true);
+      self._disableNav(0, len === 1 || index === 0);
+      self._disableNav(1, len === 1 || index === self._items.length - 1);
+      self._currentIndex = index;
     }
 
   };
