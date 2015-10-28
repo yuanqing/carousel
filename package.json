@@ -1,7 +1,7 @@
 {
   "name": "carousel",
   "version": "0.0.0",
-  "description": "",
+  "description": "Extensible, responsive-friendly carousel in vanilla JavaScript. No dependencies.",
   "author": "Lim Yuan Qing",
   "license": "MIT",
   "repository": {
@@ -9,4 +9,10 @@
     "url": "git://github.com/yuanqing/carousel.git"
   },
   "main": "carousel.js",
+  "devDependencies": {
+    "uglify-js": "^2.5.0"
+  },
+  "scripts": {
+    "dist": "uglifyjs carousel.js --mangle --output carousel.min.js"
+  }
 }
